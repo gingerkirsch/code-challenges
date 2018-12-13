@@ -20,6 +20,7 @@ object SNiceStrings {
 //    haegwjzuvuyypxyu is naughty because it contains the string xy.
 //    dvszwmarrgswjxmb is naughty because it contains only one vowel.
 //    How many strings are nice?
+  val regex = "^(.*[aeiou].*[aeiou].*[aeiou])$|^(.)\\1{2,}+$|^((?!(ab|cd|pq|xy)).)*$"
 
-  def nice(xs: List[String]): Int = ???
+  def nice(xs: List[String]): Int = xs.filter(_.matches(regex)).size
 }
