@@ -1,5 +1,7 @@
 package com.intenthq.challenge;
 
+case class SuffixNode(number: Int, value: Option[Char] = None, children: Seq[SuffixNode] = Seq.empty[SuffixNode])
+
 object SEnigma {
 
   // We have a system to transfer information from one place to another. This system
@@ -22,6 +24,71 @@ object SEnigma {
   // Following the above rules, the message would be: “1N73N7 HQ”
   // Check the tests for some other (simpler) examples.
 
-  def deciphe(map: Map[Int, Char])(message: List[Int]): String = ???
+  def decipher(map: Map[Int, Char])(message: List[Int]): String = {
+    def suffixTree(root: SuffixNode, token: Int, value: Char): SuffixNode = {
+      def loop(current: SuffixNode, branch: Seq[Int]): SuffixNode = (current, branch) match {
+        case (node, Seq(a)) if node.children.isEmpty => SuffixNode(node.number, node.value, Seq(SuffixNode(a, Some(value))))
+        case (node, Seq(a)) if node.children.map(_.number).contains(a) => node
+        case (node, Seq(a)) => SuffixNode(node.number, node.value, node.children ++ Seq(SuffixNode(a, Some(value))))
+        case (node, x :: xs) if node.children.isEmpty => {
+          val nextNode = SuffixNode(x, children = Seq(loop(nextNode, xs)))
+          SuffixNode(node.number, node.value, Seq(nextNode))
+        }
+        case (node, x :: xs) if node.children.map(_.number).contains(x) => loop(node.children.filter(_.number == x).head, xs)
+        case (node, x :: xs) => {
+          val nextNode = SuffixNode(x)
+          SuffixNode(node.number, node.value, node.children ++ Seq(nextNode, loop(nextNode, xs)))
+        }
+        case (node, _) => node
+      }
+      loop(root,token.toString.map(_.asDigit))
+    }
+
+    def search(tree: SuffixNode, message: List[Int]): String = {
+      val strBuilder = new StringBuilder
+      def step(current: SuffixNode, substring: List[Int]): Unit = (current, substring) match {
+        case (node, List(a)) if (node.number == 0) && node.children.isEmpty => strBuilder.append(a)
+        case (node, List(a)) if (node.number == 0) => node.children.map(step(_, List(a)))
+        case (node, List(a)) if (node.number != a) && node.children.isEmpty => strBuilder.append(a)
+        case (node, List(a)) if (node.number != a) => strBuilder.append(a)
+        case (node, List(a)) => node.value.map(strBuilder.append(_))
+        case (node, x :: xs) if (node.number == 0) && node.children.isEmpty => {
+          strBuilder.append(x)
+          step(node, xs)
+        }
+        case (node, x :: xs) if (node.number == 0) && node.children.isEmpty => {
+          node.children.map(step(_, x :: xs))
+        }
+        case (node, x :: xs) if (node.number != x) && node.children.isEmpty => {
+          strBuilder.append(x)
+          step(node, xs)
+        }
+        case (node, x :: xs) if (node.number != x) => {
+          node.children.map(step(_, x :: xs))
+        }
+        case (node, x :: xs) => node.children.map(step(_, xs))
+      }
+      step(tree, message)
+      strBuilder.toString()
+    }
+
+    val root = SuffixNode(0)
+    val tree = map.foldLeft(root){ case (root, (number, char)) => suffixTree(root, number, char)}
+
+    search(tree, message)
+
+    //val suffixes = map.values.map(_)
+    /*
+    "(2,3) is 'N'" in {
+      deciphe(List(2,3)) must_== "N"
+    }
+    "(2,3,8,9) is 'NH'" in {
+      deciphe(List(2,3,8,9)) must_== "NH"
+    }
+
+    "(1,2,3) is '1N'" in {
+      deciphe(List(1,2,3)) must_== "1N"
+    }*/
+  }
 
 }
