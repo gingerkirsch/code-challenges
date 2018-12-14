@@ -7,13 +7,14 @@ class SEnigmaSpec extends Specification {
   section("scala")
   section("enigma")
   "SEnigmaSpec" should {
-    val map = Map(23 -> 'N')//, 234 -> ' ', 89 -> 'H', 78 -> 'Q', 37 -> 'A')
+    val map = Map(23 -> 'N', 234 -> ' ', 89 -> 'H', 78 -> 'Q', 37 -> 'A')
     val deciphe = SEnigma.decipher(map) _
 
     "(2,3) is 'N'" in {
       deciphe(List(2,3)) must_== "N"
     }
-    /*"(2,3,8,9) is 'NH'" in {
+
+    "(2,3,8,9) is 'NH'" in {
       deciphe(List(2,3,8,9)) must_== "NH"
     }
 
@@ -27,7 +28,7 @@ class SEnigmaSpec extends Specification {
 
     "(1,2,3,7,3,2,3,7,2,3,4,8,9,7,8) is '1N73N7 HQ'" in {
       deciphe(List(1,2,3,7,3,2,3,7,2,3,4,8,9,7,8)) must_== "1N73N7 HQ"
-    }*/
+    }
   }
   section("enigma")
   section("scala")
